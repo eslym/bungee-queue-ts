@@ -18,6 +18,7 @@ export declare class QueueService {
         [uuid: string]: mc.Client;
     };
     protected nextCheck: Moment;
+    private checking;
     queue: {
         priority: {
             [id: string]: mc.Client;

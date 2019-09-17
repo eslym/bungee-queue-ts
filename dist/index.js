@@ -4,7 +4,7 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./QueueService"));
-__export(require("./PermissionManager"));
+__export(require("./FileBasedPermissionManager"));
 __export(require("./WrappedClient"));
 __export(require("./ClientWrapper"));
 __export(require("./PacketBuilder"));

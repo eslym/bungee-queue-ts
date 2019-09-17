@@ -26,6 +26,7 @@ var QueueService = (function () {
         this.usernameIndex = {};
         this.uuidIndex = {};
         this.nextCheck = moment_1.default();
+        this.checking = false;
         this.queue = {
             priority: {},
             normal: {},
@@ -105,11 +106,35 @@ var QueueService = (function () {
                 Object.values(_this.queue.entering).forEach(function (client) {
                     _this.wrap(client).enterGame();
                 });
+            }).on('bungeecord:ServerIP', function (data) {
+                mc.ping({
+                    host: data.ip,
+                    port: data.port,
+                }, function (err, result) {
+                    _this.checking = true;
+                    if (err) {
+                        _this.nextCheck = moment_1.default().add(_this.settings.queue.availabilityDelay);
+                        _this.getClients().forEach(function (client) {
+                            _this.wrap(client).sendSystem(_this.settings.language.serverDown);
+                        });
+                    }
+                    else {
+                        var clients = _this.getClients();
+                        for (var i = 0; i < clients.length; i++) {
+                            if (clients[i].state !== States.PLAY) {
+                                continue;
+                            }
+                            bungeecord_message_1.default(clients[i]).playerCount(_this.settings.queue.targetServer);
+                            return;
+                        }
+                    }
+                    _this.checking = false;
+                });
             });
             _this.updateQueue();
         });
         setInterval(function () {
-            if (moment_1.default().isBefore(_this.nextCheck) && _this.getClients().length > 0) {
+            if (moment_1.default().isSameOrAfter(_this.nextCheck) && _this.getClients().length > 0) {
                 var clients = _this.getClients();
                 for (var i = 0; i < clients.length; i++) {
                     if (clients[i].state !== States.PLAY) {

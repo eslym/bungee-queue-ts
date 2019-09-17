@@ -1,6 +1,6 @@
 // Classes
 export * from "./QueueService";
-export * from "./PermissionManager";
+export * from "./FileBasedPermissionManager";
 export * from "./WrappedClient";
 export * from "./ClientWrapper";
 export * from "./PacketBuilder";
