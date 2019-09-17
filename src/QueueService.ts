@@ -26,6 +26,8 @@ export class QueueService{
 
     protected nextCheck: Moment = moment();
 
+    private checking = false;
+
     public queue: {
         priority: {[id: string]: mc.Client};
         normal: {[id: string]: mc.Client};
@@ -112,12 +114,35 @@ export class QueueService{
                 Object.values(this.queue.entering).forEach((client) => {
                     this.wrap(client).enterGame();
                 });
+            }).on('bungeecord:ServerIP', (data)=>{
+                mc.ping({
+                    host: data.ip,
+                    port: data.port,
+                }, (err, result) => {
+                    this.checking = true;
+                    if(err){
+                        this.nextCheck = moment().add(this.settings.queue.availabilityDelay);
+                        this.getClients().forEach((client)=>{
+                            this.wrap(client).sendSystem(this.settings.language.serverDown);
+                        });
+                    } else {
+                        let clients = this.getClients();
+                        for(let i = 0; i < clients.length; i++){
+                            if(clients[i].state !== States.PLAY){
+                                continue;
+                            }
+                            bungee(clients[i]).playerCount(this.settings.queue.targetServer);
+                            return;
+                        }
+                    }
+                    this.checking = false;
+                });
             });
             this.updateQueue();
         });
 
         setInterval(()=>{
-            if(moment().isBefore(this.nextCheck) && this.getClients().length > 0){
+            if(moment().isSameOrAfter(this.nextCheck) && this.getClients().length > 0){
                 let clients = this.getClients();
                 for(let i = 0; i < clients.length; i++){
                     if(clients[i].state !== States.PLAY){
