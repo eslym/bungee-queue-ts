@@ -22,6 +22,7 @@ var FileBasedPermissionManager = (function () {
         this.permissionPath = permissionPath;
         this.groups = this.loadGroups();
         this.permissions = this.loadPermissions();
+        this.buildIndices();
     }
     FileBasedPermissionManager.prototype.addPermission = function (player, permission) {
         return this;
@@ -82,6 +83,29 @@ var FileBasedPermissionManager = (function () {
             fs.writeFile(this.permissionPath, JSON.stringify(permissions, null, 2), function () { });
             return permissions;
         }
+    };
+    FileBasedPermissionManager.prototype.buildIndices = function () {
+        var _this = this;
+        Object.entries(this.groups).forEach(function (pairs) {
+            pairs[1].members.forEach(function (member) {
+                if (!_this.nameGroupIndex.has(member.name)) {
+                    _this.nameGroupIndex.set(member.name, []);
+                }
+                _this.nameGroupIndex.get(member.name).push(pairs[0]);
+                if ((member.hasOwnProperty('uuid'))) {
+                    if (!_this.uuidGroupIndex.has(member.uuid)) {
+                        _this.uuidGroupIndex.set(member.uuid, []);
+                    }
+                    _this.uuidGroupIndex.get(member.uuid).push(pairs[0]);
+                }
+            });
+        });
+        this.permissions.forEach(function (player) {
+            _this.nameIndex.set(player.name, player);
+            if (player.hasOwnProperty('uuid')) {
+                _this.uuidIndex.set(player.uuid, player);
+            }
+        });
     };
     return FileBasedPermissionManager;
 }());

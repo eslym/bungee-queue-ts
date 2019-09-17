@@ -47,6 +47,7 @@ export class FileBasedPermissionManager implements IPermissionManager{
         this.permissionPath = permissionPath;
         this.groups = this.loadGroups();
         this.permissions = this.loadPermissions();
+        this.buildIndices();
     }
 
     public addPermission(player: PlayerType, permission: string): this {
@@ -117,5 +118,28 @@ export class FileBasedPermissionManager implements IPermissionManager{
             fs.writeFile(this.permissionPath, JSON.stringify(permissions, null, 2), ()=>{});
             return permissions;
         }
+    }
+
+    protected buildIndices(){
+        Object.entries(this.groups).forEach((pairs)=>{
+            pairs[1].members.forEach((member)=>{
+                if(!this.nameGroupIndex.has(member.name)){
+                    this.nameGroupIndex.set(member.name, []);
+                }
+                (this.nameGroupIndex.get(member.name) as string[]).push(pairs[0]);
+                if((member.hasOwnProperty('uuid'))){
+                    if(!this.uuidGroupIndex.has(member.uuid as string)){
+                        this.uuidGroupIndex.set(member.uuid as string, []);
+                    }
+                    (this.uuidGroupIndex.get(member.uuid as string) as string[]).push(pairs[0]);
+                }
+            });
+        });
+        this.permissions.forEach((player) => {
+            this.nameIndex.set(player.name, player);
+            if(player.hasOwnProperty('uuid')){
+                this.uuidIndex.set(player.uuid as string, player);
+            }
+        })
     }
 }

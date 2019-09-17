@@ -38,6 +38,7 @@ export declare class FileBasedPermissionManager implements IPermissionManager {
     protected getService(): QueueService;
     protected loadGroups(): Groups;
     protected loadPermissions(): PlayerPermission[];
+    protected buildIndices(): void;
 }
 export {};
 //# sourceMappingURL=FileBasedPermissionManager.d.ts.map
