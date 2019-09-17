@@ -8,7 +8,7 @@ import {QueueService} from "./QueueService";
 import JsonText from "./types/JsonText";
 
 export class WrappedClient extends EventEmitter{
-    protected _client: Client;
+    protected client: Client;
     protected service: QueueService;
 
     public ready: boolean = false;
@@ -19,7 +19,7 @@ export class WrappedClient extends EventEmitter{
 
     public constructor(client: Client, service: QueueService) {
         super();
-        this._client = client;
+        this.client = client;
         this.service = service;
         (client as any).wrappedClient = this;
         bungee(client).uuid();
@@ -31,15 +31,15 @@ export class WrappedClient extends EventEmitter{
         });
     }
 
-    public client(): Client{
-        return this._client;
+    public getClient(): Client{
+        return this.client;
     }
 
     public enterGame(){
         if(this.lastEnter.clone().add({s: 5}).isAfter(moment())){
             return;
         }
-        bungee(this._client).connect(this.service.settings.queue.targetServer);
+        bungee(this.client).connect(this.service.settings.queue.targetServer);
         this.queueState = QueueState.ENTERING;
         this.lastEnter = moment();
     }
@@ -50,34 +50,17 @@ export class WrappedClient extends EventEmitter{
                 return 1;
             }
             this.queueState = QueueState.QUEUED;
-            this._client.write('login', {
-                entityId: 1,
-                levelType: 'default',
-                gameMode: 0,
-                dimension: 1,
-                difficulty: 0,
-                maxPlayers: 1,
-                reducedDebugInfo: false
-            });
-            this._client.write('position', {
-                x: 87,
-                y: 87,
-                z: 87,
-                yaw: 0,
-                pitch: 0,
-                flags: 0x00
-            });
-            this._client.write('chat', {
+            this.client.write('chat', {
                 message: JSON.stringify(this.service.settings.language.serverFull),
                 position: 1,
             });
         }
         if(this.prevNumber !== null && this.prevNumber > queueNumber){
-            this._client.write('chat', {
+            this.client.write('chat', {
                 position: 1,
                 message: JSON.stringify(util.format(this.service.settings.language.queueUpdate, queueNumber))
             });
-            this._client.write('experience', {
+            this.client.write('experience', {
                 experienceBar: 1,
                 level: queueNumber,
                 totalExperience: 0,
@@ -91,20 +74,16 @@ export class WrappedClient extends EventEmitter{
     }
 
     public sendSystem(message: JsonText){
-        this._client.write('chat', {
+        this.client.write('chat', {
             position: 1,
             message: JSON.stringify(message)
         });
     }
 
     public sendChat(message: JsonText){
-        this._client.write('chat', {
+        this.client.write('chat', {
             position: 0,
             message: JSON.stringify(message)
         });
-    }
-
-    public hasPermission(permission: string): boolean{
-        return true;
     }
 }

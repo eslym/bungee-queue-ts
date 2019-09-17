@@ -8,16 +8,23 @@ import {CommandDispatcher} from "node-brigadier";
 import CommandFactory from "./types/CommandFactory";
 import {EventEmitter} from "events";
 import {PacketBuilder} from "./PacketBuilder";
+import moment, {Moment} from "moment";
+import {IPermissionManager} from "./types/IPermissionManager";
+
+const States: typeof mc.States = mc.state as any as typeof mc.States;
 
 export class QueueService{
 
-    protected _server?: mc.Server = undefined;
+    protected server?: mc.Server = undefined;
     protected wrapper: ClientWrapper;
     protected commandDispatcher: CommandDispatcher<mc.Client>;
     protected commands: CommandFactory[] = [];
+    protected permissionManager?: IPermissionManager;
 
     protected usernameIndex: {[username: string]: mc.Client} = {};
     protected uuidIndex: {[uuid: string]: mc.Client} = {};
+
+    protected nextCheck: Moment = moment();
 
     public queue: {
         priority: {[id: string]: mc.Client};
@@ -29,7 +36,7 @@ export class QueueService{
         entering: {},
     };
 
-    public settings: Settings;
+    public readonly settings: Settings;
 
     constructor(settings: Settings){
         this.wrapper = new ClientWrapper(this);
@@ -41,8 +48,7 @@ export class QueueService{
         this.commands.forEach((factory: CommandFactory)=>{
             this.commandDispatcher.register(factory(this));
         });
-        let builder = new PacketBuilder<mc.Client>();
-        this._server = mc.createServer({
+        this.server = mc.createServer({
             host: this.settings.listen.host,
             port: this.settings.listen.port,
             version: this.settings.queue.version,
@@ -50,12 +56,28 @@ export class QueueService{
             'online-mode': false,
             keepAlive: true,
         });
-        this._server.on("login", (client: mc.Client) => {
-            let packet = builder.buildPacket(this.commandDispatcher, client);
-            if(this.settings.queue.maxInQueue > 0 && this.clients().length > this.server().maxPlayers){
+        this.server.on("login", (client: mc.Client) => {
+            if(this.settings.queue.maxInQueue > 0 && this.getClients().length > this.getServer().maxPlayers){
                 client.end(this.settings.language.queueFull);
                 return;
             }
+            client.write('login', {
+                entityId: 1,
+                levelType: 'default',
+                gameMode: 0,
+                dimension: 1,
+                difficulty: 0,
+                maxPlayers: 1,
+                reducedDebugInfo: false
+            });
+            client.write('position', {
+                x: 87,
+                y: 87,
+                z: 87,
+                yaw: 0,
+                pitch: 0,
+                flags: 0x00
+            });
             console.info(util.format("%s joined the queue.", client.username));
             bungee(client);
             let cleanup = ()=>{
@@ -65,6 +87,7 @@ export class QueueService{
                 delete this.uuidIndex[client.uuid];
                 delete this.usernameIndex[client.username];
                 console.info(util.format("%s left the queue.", client.username));
+                this.updateQueue();
             };
             client.on('end', cleanup).on('error', cleanup);
             let wrapped = this.wrap(client).on('ready', ()=>{
@@ -79,7 +102,7 @@ export class QueueService{
             });
             (client as EventEmitter).on('bungeecord:PlayerCount', (data)=>{
                 if((data.count + Object.values(this.queue.entering).length) < this.settings.queue.maxPlayers){
-                    let queue = Object.values(this.queue.priority).concat(Object.values(this.queue.normal))
+                    let queue = Object.values(this.queue.priority).concat(Object.values(this.queue.normal));
                     if(queue.length > 0){
                         let target = queue[0];
                         delete this.queue.priority[target.uuid];
@@ -90,24 +113,41 @@ export class QueueService{
                     this.wrap(client).enterGame();
                 });
             });
+            this.updateQueue();
         });
 
         setInterval(()=>{
-            if(Object.values(this.clients()).length > 0){
-                bungee(Object.values(this.clients())[0]).playerCount(this.settings.queue.targetServer);
+            if(moment().isBefore(this.nextCheck) && this.getClients().length > 0){
+                let clients = this.getClients();
+                for(let i = 0; i < clients.length; i++){
+                    if(clients[i].state !== States.PLAY){
+                        continue;
+                    }
+                    bungee(clients[i]).serverIp(this.settings.queue.targetServer);
+                    return;
+                }
             }
         }, 200);
     }
 
-    public server(): mc.Server{
-        if(this._server !== undefined){
-            return this._server;
+    public getServer(): mc.Server{
+        if(this.server !== undefined){
+            return this.server;
         }
         throw Error('Server not started!');
     }
 
-    public clients(): mc.Client[]{
-        return this.server().clients as any as mc.Client[];
+    public getClients(): mc.Client[]{
+        return Object.values(this.getServer().clients);
+    }
+
+    public getPermissionManager(): IPermissionManager{
+        return this.permissionManager as IPermissionManager;
+    }
+
+    public setPermissionManager(permissionManager: IPermissionManager): this{
+        this.permissionManager = permissionManager;
+        return this;
     }
 
     public registerCommand(factory: CommandFactory): this{
@@ -128,12 +168,25 @@ export class QueueService{
         return undefined;
     }
 
-    public declareCommands(client: mc.Client){
-        let root = this.commandDispatcher.getRoot();
-        console.log(root);
+    protected declareCommands(client: mc.Client){
+        let builder = new PacketBuilder<mc.Client>();
+        let packet = builder.buildPacket(this.commandDispatcher, client);
+        client.write('declare_commands', packet);
+    }
+
+    public getQueue(): mc.Client[]{
+        return Object.values(this.queue.priority)
+            .concat(Object.values(this.queue.normal));
     }
 
     protected isPrioritized(client: mc.Client):boolean{
         return false;
+    }
+
+    protected updateQueue(){
+        let number = 1;
+        this.getQueue().forEach((client)=>{
+            number = this.wrap(client).notifyQueue(number);
+        });
     }
 }

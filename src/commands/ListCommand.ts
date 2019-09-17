@@ -7,10 +7,10 @@ export function ListCommand(service: QueueService): LiteralArgumentBuilder<Clien
         context.getSource().write('chat', {
             message: [{
                 translate: "Players: %s",
-                with: [service.clients().map((client)=>client.username).join(', ')]
+                with: [service.getClients().map((client)=>client.username).join(', ')]
             }],
             position: 1
         });
         return 0;
-    });
+    }).requires((client) => service.getPermissionManager().hasPermission(client, 'queue.list'));
 }

@@ -117,10 +117,12 @@ export class PacketBuilder<S> {
                     let cast = arg.getType() as unknown as { getMaximum():number, getMinimum(): number};
                     if(cast.getMaximum() !== Infinity){
                         prop.max = cast.getMaximum();
+                        packet.flags.max_present = 1;
                         packet.extraNodeData.properties = prop;
                     }
                     if(cast.getMinimum() !== -Infinity){
                         prop.min = cast.getMinimum();
+                        packet.flags.min_present = 1;
                         packet.extraNodeData.properties = prop;
                     }
                 }

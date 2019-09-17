@@ -24,6 +24,9 @@ var PermissionManager = (function () {
     PermissionManager.prototype.setQueueService = function (service) {
         return this;
     };
+    PermissionManager.prototype.hasPermission = function (client, permission) {
+        return false;
+    };
     return PermissionManager;
 }());
 exports.PermissionManager = PermissionManager;

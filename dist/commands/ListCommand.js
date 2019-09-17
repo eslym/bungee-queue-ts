@@ -6,12 +6,12 @@ function ListCommand(service) {
         context.getSource().write('chat', {
             message: [{
                     translate: "Players: %s",
-                    with: [service.clients().map(function (client) { return client.username; }).join(', ')]
+                    with: [service.getClients().map(function (client) { return client.username; }).join(', ')]
                 }],
             position: 1
         });
         return 0;
-    });
+    }).requires(function (client) { return service.getPermissionManager().hasPermission(client, 'queue.list'); });
 }
 exports.ListCommand = ListCommand;
 //# sourceMappingURL=ListCommand.js.map

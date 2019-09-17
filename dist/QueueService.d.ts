@@ -3,17 +3,21 @@ import { Settings } from "./types/Settings";
 import { ClientWrapper } from "./ClientWrapper";
 import { CommandDispatcher } from "node-brigadier";
 import CommandFactory from "./types/CommandFactory";
+import { Moment } from "moment";
+import { IPermissionManager } from "./types/IPermissionManager";
 export declare class QueueService {
-    protected _server?: mc.Server;
+    protected server?: mc.Server;
     protected wrapper: ClientWrapper;
     protected commandDispatcher: CommandDispatcher<mc.Client>;
     protected commands: CommandFactory[];
+    protected permissionManager?: IPermissionManager;
     protected usernameIndex: {
         [username: string]: mc.Client;
     };
     protected uuidIndex: {
         [uuid: string]: mc.Client;
     };
+    protected nextCheck: Moment;
     queue: {
         priority: {
             [id: string]: mc.Client;
@@ -25,15 +29,19 @@ export declare class QueueService {
             [id: string]: mc.Client;
         };
     };
-    settings: Settings;
+    readonly settings: Settings;
     constructor(settings: Settings);
     start(): void;
-    server(): mc.Server;
-    clients(): mc.Client[];
+    getServer(): mc.Server;
+    getClients(): mc.Client[];
+    getPermissionManager(): IPermissionManager;
+    setPermissionManager(permissionManager: IPermissionManager): this;
     registerCommand(factory: CommandFactory): this;
     wrap(client: mc.Client): import("./WrappedClient").WrappedClient;
     lookup(idOrName: string): mc.Client | undefined;
-    declareCommands(client: mc.Client): void;
+    protected declareCommands(client: mc.Client): void;
+    getQueue(): mc.Client[];
     protected isPrioritized(client: mc.Client): boolean;
+    protected updateQueue(): void;
 }
 //# sourceMappingURL=QueueService.d.ts.map

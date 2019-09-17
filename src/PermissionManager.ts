@@ -35,4 +35,8 @@ export class PermissionManager implements IPermissionManager{
         return this;
     }
 
+    hasPermission(client: Client, permission: string): boolean {
+        return false;
+    }
+
 }

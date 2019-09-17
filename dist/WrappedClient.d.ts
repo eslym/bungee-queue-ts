@@ -6,7 +6,7 @@ import { EventEmitter } from "events";
 import { QueueService } from "./QueueService";
 import JsonText from "./types/JsonText";
 export declare class WrappedClient extends EventEmitter {
-    protected _client: Client;
+    protected client: Client;
     protected service: QueueService;
     ready: boolean;
     queueState: QueueState;
@@ -14,11 +14,10 @@ export declare class WrappedClient extends EventEmitter {
     prevNumber: number | null;
     lastEnter: moment.Moment;
     constructor(client: Client, service: QueueService);
-    client(): Client;
+    getClient(): Client;
     enterGame(): void;
     notifyQueue(queueNumber: number): number;
     sendSystem(message: JsonText): void;
     sendChat(message: JsonText): void;
-    hasPermission(permission: string): boolean;
 }
 //# sourceMappingURL=WrappedClient.d.ts.map

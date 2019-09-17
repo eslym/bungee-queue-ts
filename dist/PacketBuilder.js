@@ -84,10 +84,12 @@ var PacketBuilder = (function () {
                     var cast = arg.getType();
                     if (cast.getMaximum() !== Infinity) {
                         prop.max = cast.getMaximum();
+                        packet.flags.max_present = 1;
                         packet.extraNodeData.properties = prop;
                     }
                     if (cast.getMinimum() !== -Infinity) {
                         prop.min = cast.getMinimum();
+                        packet.flags.min_present = 1;
                         packet.extraNodeData.properties = prop;
                     }
                 }

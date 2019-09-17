@@ -96,7 +96,7 @@ function PrioritizeCommand(service) {
         });
         return 0;
     }).requires(function (client) {
-        return service.wrap(client).hasPermission('queue.prioritize');
+        return service.getPermissionManager().hasPermission(client, 'queue.prioritize');
     });
 }
 exports.PrioritizeCommand = PrioritizeCommand;

@@ -66,6 +66,6 @@ export function PrioritizeCommand(service: QueueService): LiteralArgumentBuilder
             });
             return 0;
         }).requires((client: Client)=>{
-            return service.wrap(client).hasPermission('queue.prioritize');
+            return service.getPermissionManager().hasPermission(client, 'queue.prioritize');
         });
 }
