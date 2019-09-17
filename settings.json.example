@@ -1,0 +1,24 @@
+{
+    "listen": {
+        "host": "127.0.0.1",
+        "port": 25564
+    },
+    "queue": {
+        "version": "1.13.2",
+        "maxPlayers": 20,
+        "maxInQueue": 0,
+        "targetServer": "main"
+    },
+    "language": {
+        "queueFull": "Queue is now full, please try again later.",
+        "serverFull": {
+            "text": "Server is now full, you are now queueing up.",
+            "color": "yellow"
+        },
+        "serverDown": {
+            "text": "Server is down, but you can keep your queue number until it's up.",
+            "color": "red"
+        },
+        "queueUpdate": "Your current queue number: %d"
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "bungee-queue-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node ./dist/server.js"
+  },
+  "keywords": [],
+  "author": "0nepeop1e",
+  "license": "MIT",
+  "dependencies": {
+    "@types/moment": "^2.13.0",
+    "@types/node": "^12.7.5",
+    "bungeecord-message": "^1.0.3",
+    "events": "^3.0.0",
+    "fs": "0.0.1-security",
+    "minecraft-protocol": "^1.9.4",
+    "moment": "^2.24.0",
+    "node-brigadier": "0.0.10"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.3"
+  }
+}
