@@ -34,6 +34,7 @@ export declare class FileBasedPermissionManager implements IPermissionManager {
     groupRemoveMember(group: string, member: PlayerType): this;
     removePermission(player: PlayerType, permission: string): this;
     setQueueService(service: QueueService): this;
+    preparePermissions(client: Client): Promise<void>;
     hasPermission(client: Client, permission: string): boolean;
     protected getService(): QueueService;
     protected loadGroups(): Groups;

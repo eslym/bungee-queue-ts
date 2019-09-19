@@ -9,6 +9,7 @@ export interface IPermissionManager {
     groupRemoveMember(group: string, member: PlayerType): this;
     addPermission(player: PlayerType, permission: string): this;
     removePermission(player: PlayerType, permission: string): this;
+    preparePermissions(client: Client): Promise<void>;
     hasPermission(client: Client, permission: string): boolean;
 }
 export {};

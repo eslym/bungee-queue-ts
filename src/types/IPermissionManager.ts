@@ -15,5 +15,7 @@ export interface IPermissionManager{
     addPermission(player: PlayerType, permission: string): this;
     removePermission(player: PlayerType, permission: string): this;
 
+    preparePermissions(client: Client): Promise<void>;
+
     hasPermission(client: Client, permission: string): boolean;
 }

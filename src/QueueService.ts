@@ -81,6 +81,9 @@ export class QueueService{
                 flags: 0x00
             });
             console.info(util.format("%s joined the queue.", client.username));
+            this.getPermissionManager().preparePermissions(client).then(()=>{
+                this.declareCommands(client);
+            });
             bungee(client);
             let cleanup = ()=>{
                 delete this.queue.priority[client.uuid];

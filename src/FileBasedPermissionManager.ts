@@ -80,6 +80,8 @@ export class FileBasedPermissionManager implements IPermissionManager{
         return this;
     }
 
+    public async preparePermissions(client: Client){}
+
     public hasPermission(client: Client, permission: string): boolean {
         return false;
     }

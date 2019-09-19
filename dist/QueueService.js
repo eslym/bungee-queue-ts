@@ -72,6 +72,9 @@ var QueueService = (function () {
                 flags: 0x00
             });
             console.info(util_1.default.format("%s joined the queue.", client.username));
+            _this.getPermissionManager().preparePermissions(client).then(function () {
+                _this.declareCommands(client);
+            });
             bungeecord_message_1.default(client);
             var cleanup = function () {
                 delete _this.queue.priority[client.uuid];
