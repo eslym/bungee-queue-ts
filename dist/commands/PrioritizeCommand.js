@@ -45,14 +45,14 @@ function PrioritizeCommand(service) {
         var player = node_brigadier_1.StringArgumentType.getString(context, 'Player');
         var selected = undefined;
         if (player === "@s") {
-            selected = context.getSource();
+            selected = context.getSource().getClient();
         }
         else {
             selected = service.lookup(player);
         }
         if (selected && service.wrap(selected).queueState === __1.QueueState.QUEUED) {
             if (service.queue.priority.hasOwnProperty(selected.uuid)) {
-                service.wrap(context.getSource()).sendSystem({
+                context.getSource().sendSystem({
                     translate: "%s is already in priority queue.",
                     with: [player],
                     color: "red"
@@ -61,7 +61,7 @@ function PrioritizeCommand(service) {
             else {
                 delete service.queue.normal[selected.uuid];
                 service.queue.priority[selected.uuid] = selected;
-                service.wrap(context.getSource()).sendSystem({
+                context.getSource().sendSystem({
                     translate: "%s has queued into priority queue.",
                     with: [player],
                     color: "yellow"
@@ -69,7 +69,7 @@ function PrioritizeCommand(service) {
             }
         }
         else {
-            service.wrap(context.getSource()).sendSystem({
+            context.getSource().sendSystem({
                 translate: "Could not find any player: %s",
                 with: [player],
                 color: "red",
@@ -90,13 +90,13 @@ function PrioritizeCommand(service) {
             });
         }
     })).executes(function (context) {
-        service.wrap(context.getSource()).sendSystem({
+        context.getSource().sendSystem({
             text: "Missing argument player.",
             color: "red"
         });
         return 0;
-    }).requires(function (client) {
-        return service.getPermissionManager().hasPermission(client, 'queue.prioritize');
+    }).requires(function (executor) {
+        return executor.hasPermission('queue.prioritize');
     });
 }
 exports.PrioritizeCommand = PrioritizeCommand;

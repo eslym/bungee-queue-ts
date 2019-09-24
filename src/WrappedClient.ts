@@ -6,8 +6,9 @@ import {EventEmitter} from "events";
 import util from "util";
 import {QueueService} from "./QueueService";
 import JsonText from "./types/JsonText";
+import {IExecutor} from "./types/IExecutor";
 
-export class WrappedClient extends EventEmitter{
+export class WrappedClient extends EventEmitter implements IExecutor{
     protected client: Client;
     protected service: QueueService;
 
@@ -85,5 +86,9 @@ export class WrappedClient extends EventEmitter{
             position: 0,
             message: JSON.stringify(message)
         });
+    }
+
+    hasPermission(permission: string): boolean {
+        return false;
     }
 }

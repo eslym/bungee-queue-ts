@@ -183,7 +183,7 @@ var QueueService = (function () {
     };
     QueueService.prototype.declareCommands = function (client) {
         var builder = new PacketBuilder_1.PacketBuilder();
-        var packet = builder.buildPacket(this.commandDispatcher, client);
+        var packet = builder.buildPacket(this.commandDispatcher, this.wrap(client));
         client.write('declare_commands', packet);
     };
     QueueService.prototype.getQueue = function () {

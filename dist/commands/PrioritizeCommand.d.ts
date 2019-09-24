@@ -1,5 +1,5 @@
 import { QueueService } from "../QueueService";
-import { Client } from "minecraft-protocol";
 import { LiteralArgumentBuilder } from "node-brigadier";
-export declare function PrioritizeCommand(service: QueueService): LiteralArgumentBuilder<Client>;
+import { IExecutor } from "../types/IExecutor";
+export declare function PrioritizeCommand(service: QueueService): LiteralArgumentBuilder<IExecutor>;
 //# sourceMappingURL=PrioritizeCommand.d.ts.map

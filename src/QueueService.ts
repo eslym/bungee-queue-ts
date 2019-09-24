@@ -10,6 +10,7 @@ import {EventEmitter} from "events";
 import {PacketBuilder} from "./PacketBuilder";
 import moment, {Moment} from "moment";
 import {IPermissionManager} from "./types/IPermissionManager";
+import {IExecutor} from "./types/IExecutor";
 
 const States: typeof mc.States = mc.state as any as typeof mc.States;
 
@@ -17,7 +18,7 @@ export class QueueService{
 
     protected server?: mc.Server = undefined;
     protected wrapper: ClientWrapper;
-    protected commandDispatcher: CommandDispatcher<mc.Client>;
+    protected commandDispatcher: CommandDispatcher<IExecutor>;
     protected commands: CommandFactory[] = [];
     protected permissionManager?: IPermissionManager;
 
@@ -43,7 +44,7 @@ export class QueueService{
     constructor(settings: Settings){
         this.wrapper = new ClientWrapper(this);
         this.settings = settings;
-        this.commandDispatcher = new CommandDispatcher<mc.Client>();
+        this.commandDispatcher = new CommandDispatcher<IExecutor>();
     }
 
     public start(){
@@ -197,8 +198,8 @@ export class QueueService{
     }
 
     protected declareCommands(client: mc.Client){
-        let builder = new PacketBuilder<mc.Client>();
-        let packet = builder.buildPacket(this.commandDispatcher, client);
+        let builder = new PacketBuilder<IExecutor>();
+        let packet = builder.buildPacket(this.commandDispatcher, this.wrap(client));
         client.write('declare_commands', packet);
     }
 

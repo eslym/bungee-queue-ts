@@ -92,6 +92,9 @@ var WrappedClient = (function (_super) {
             message: JSON.stringify(message)
         });
     };
+    WrappedClient.prototype.hasPermission = function (permission) {
+        return false;
+    };
     return WrappedClient;
 }(events_1.EventEmitter));
 exports.WrappedClient = WrappedClient;

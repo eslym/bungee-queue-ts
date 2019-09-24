@@ -1,16 +1,15 @@
 import {QueueService} from "../QueueService";
 import {CommandContext, literal, LiteralArgumentBuilder} from "node-brigadier";
-import {Client} from "minecraft-protocol";
+import {IExecutor} from "../types/IExecutor";
 
-export function ListCommand(service: QueueService): LiteralArgumentBuilder<Client>{
-    return literal<Client>("list").executes((context: CommandContext<Client>)=>{
-        context.getSource().write('chat', {
-            message: [{
+export function ListCommand(service: QueueService): LiteralArgumentBuilder<IExecutor>{
+    return literal<IExecutor>("list").executes((context: CommandContext<IExecutor>)=>{
+        context.getSource().sendChat([
+            {
                 translate: "Players: %s",
                 with: [service.getClients().map((client)=>client.username).join(', ')]
-            }],
-            position: 1
-        });
+            }
+            ]);
         return 0;
-    }).requires((client) => service.getPermissionManager().hasPermission(client, 'queue.list'));
+    }).requires((executor: IExecutor) => executor.hasPermission('queue.list'));
 }

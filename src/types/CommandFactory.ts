@@ -1,7 +1,7 @@
 import {QueueService} from "../QueueService";
 import {LiteralArgumentBuilder} from "node-brigadier";
-import {Client} from "minecraft-protocol";
+import {IExecutor} from "./IExecutor";
 
-declare type CommandFactory = (service: QueueService) => LiteralArgumentBuilder<Client>;
+declare type CommandFactory = (service: QueueService) => LiteralArgumentBuilder<IExecutor>;
 
 export default CommandFactory;

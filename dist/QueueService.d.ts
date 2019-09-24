@@ -5,10 +5,11 @@ import { CommandDispatcher } from "node-brigadier";
 import CommandFactory from "./types/CommandFactory";
 import { Moment } from "moment";
 import { IPermissionManager } from "./types/IPermissionManager";
+import { IExecutor } from "./types/IExecutor";
 export declare class QueueService {
     protected server?: mc.Server;
     protected wrapper: ClientWrapper;
-    protected commandDispatcher: CommandDispatcher<mc.Client>;
+    protected commandDispatcher: CommandDispatcher<IExecutor>;
     protected commands: CommandFactory[];
     protected permissionManager?: IPermissionManager;
     protected usernameIndex: {
