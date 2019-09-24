@@ -56,7 +56,9 @@ export function PrioritizeCommand(service: QueueService): LiteralArgumentBuilder
                         Object.values(service.queue.normal).forEach((client) => {
                             builder.suggest(client.username, new LiteralMessage(service.wrap(client).realUUID as string));
                         });
-                        builder.suggest("@s", new LiteralMessage("Yourself"));
+                        if(context.getSource().getClient()){
+                            builder.suggest("@s", new LiteralMessage("Yourself"));
+                        }
                         return builder.build();
                     }
                 })

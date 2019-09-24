@@ -84,7 +84,9 @@ function PrioritizeCommand(service) {
                     Object.values(service.queue.normal).forEach(function (client) {
                         builder.suggest(client.username, new node_brigadier_1.LiteralMessage(service.wrap(client).realUUID));
                     });
-                    builder.suggest("@s", new node_brigadier_1.LiteralMessage("Yourself"));
+                    if (context.getSource().getClient()) {
+                        builder.suggest("@s", new node_brigadier_1.LiteralMessage("Yourself"));
+                    }
                     return [2, builder.build()];
                 });
             });
