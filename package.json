@@ -13,6 +13,7 @@
   "dependencies": {
     "@types/moment": "^2.13.0",
     "@types/node": "^12.7.5",
+    "ansi-escape-sequences": "^4.1.0",
     "bungeecord-message": "^1.0.3",
     "events": "^3.0.0",
     "fs": "0.0.1-security",
