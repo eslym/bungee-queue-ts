@@ -1,7 +1,6 @@
 import * as mc from 'minecraft-protocol';
 import {Settings} from "./types/Settings";
 import bungee from "bungeecord-message";
-import util from "util";
 import {ClientWrapper} from "./ClientWrapper";
 import {QueueState} from "./enums/QueueState";
 import {CommandDispatcher} from "node-brigadier";
@@ -11,10 +10,12 @@ import {PacketBuilder} from "./PacketBuilder";
 import moment, {Moment} from "moment";
 import {IPermissionManager} from "./types/IPermissionManager";
 import {IExecutor} from "./types/IExecutor";
+import {Interface} from "readline";
+import {ILogger} from "./types/ILogger";
 
-const States: typeof mc.States = mc.state as any as typeof mc.States;
+const States: typeof mc.States = (mc as any).states as any as typeof mc.States;
 
-export class QueueService{
+export class QueueService implements IExecutor{
 
     protected server?: mc.Server = undefined;
     protected wrapper: ClientWrapper;
@@ -26,6 +27,8 @@ export class QueueService{
     protected uuidIndex: {[uuid: string]: mc.Client} = {};
 
     protected nextCheck: Moment = moment();
+    protected logger?: ILogger;
+    protected cli: Interface;
 
     private checking = false;
 
@@ -41,13 +44,23 @@ export class QueueService{
 
     public readonly settings: Settings;
 
-    constructor(settings: Settings){
+    constructor(settings: Settings, cli: Interface){
         this.wrapper = new ClientWrapper(this);
         this.settings = settings;
         this.commandDispatcher = new CommandDispatcher<IExecutor>();
+        this.cli = cli;
     }
 
     public start(){
+        this.getLogger().infoF(
+            "Listening on %s:%d",
+            this.settings.listen.host,
+            this.settings.listen.port
+        );
+        this.cli.on('SIGINT', this.stop.bind(this));
+        this.cli.on('line', (line: string)=>{
+            (this.cli as any)._refreshLine();
+        });
         this.commands.forEach((factory: CommandFactory)=>{
             this.commandDispatcher.register(factory(this));
         });
@@ -81,7 +94,7 @@ export class QueueService{
                 pitch: 0,
                 flags: 0x00
             });
-            console.info(util.format("%s joined the queue.", client.username));
+            this.getLogger().infoF("%s joined the queue.", client.username);
             if(client.protocolVersion >= 343){
                 // Brigadier starts from protocol 343
                 this.getPermissionManager().preparePermissions(client).then(()=>{
@@ -95,7 +108,7 @@ export class QueueService{
                 delete this.queue.entering[client.uuid];
                 delete this.uuidIndex[client.uuid];
                 delete this.usernameIndex[client.username];
-                console.info(util.format("%s left the queue.", client.username));
+                this.getLogger().infoF("%s left the queue.", client.username);
                 this.updateQueue();
             };
             client.on('end', cleanup).on('error', cleanup);
@@ -182,6 +195,15 @@ export class QueueService{
         return this;
     }
 
+    public setLogger(logger: ILogger): this{
+        this.logger = logger;
+        return this;
+    }
+
+    public getLogger(): ILogger{
+        return this.logger as any as ILogger;
+    }
+
     public registerCommand(factory: CommandFactory): this{
         this.commands.push(factory);
         return this;
@@ -211,6 +233,22 @@ export class QueueService{
             .concat(Object.values(this.queue.normal));
     }
 
+    public hasPermission(permission: string): boolean {
+        return true;
+    }
+
+    public sendChat(content: import("./types/JsonText").default): void {
+
+    }
+
+    public sendSystem(content: import("./types/JsonText").default): void {
+
+    }
+
+    public getClient(): mc.Client | null {
+        return null;
+    }
+
     protected isPrioritized(client: mc.Client):boolean{
         return false;
     }
@@ -220,5 +258,11 @@ export class QueueService{
         this.getQueue().forEach((client)=>{
             number = this.wrap(client).notifyQueue(number);
         });
+    }
+
+    public async stop(){
+        this.cli.pause();
+        this.getLogger().infoF("Stopping queue server.");
+        process.exit();
     }
 }
