@@ -1,7 +1,3 @@
-import ansi from "ansi-escape-sequences";
-import moment from "moment";
-import util from "util";
-
 export interface ILogger {
     log(param: any, ...extras: any[]): void;
 
