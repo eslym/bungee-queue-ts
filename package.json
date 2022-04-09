@@ -18,7 +18,7 @@
     "events": "^3.0.0",
     "fs": "0.0.1-security",
     "minecraft-protocol": "^1.9.4",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "node-brigadier": "0.0.10"
   },
   "devDependencies": {
